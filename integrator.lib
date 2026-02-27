@@ -1,0 +1,55 @@
+* Integrator Sub-circuit for PLL Simulation
+.subckt INTEGRATOR_BLOCK Vin Vout params: tau=10u v_init=-31.25m
+
+* Core Components
+C1 Vout 0 {tau} ic={v_init}
+G1 Vout 0 Vin 0 -1
+R2 Vout 0 1T
+R1 Vin 0 1T
+
+.ends INTEGRATOR_BLOCK 
+
+
+* VCO Sub-circuit (Phase-Input Version met Tau schaling)
+* Ports: Vphase (Input), Vout (Output)
+.subckt VCO_BLOCK Vphase Vout params: f0=5.5meg kv=50k tau=10u
+
+* 1 Teraohm Input Resistor
+R_in Vphase 0 1T
+
+* Behavioral Sine Wave Output
+* De fase-term wordt nu vermenigvuldigd met {tau}
+B1 Vout 0 V={sin(2*pi*{f0}*time + 2*pi*{kv}*V(Vphase)*{tau})}
+
+.ends VCO_BLOCK
+
+
+* Phase Detector (Analog Multiplier) Sub-circuit
+* Ports: Vref (Input 1), Vvco (Input 2), Vout (Product)
+.subckt PD_BLOCK Vref Vvco Vout params: kd=5
+
+* High-impedance input resistors for simulation stability
+R_ref Vref 0 1T
+R_vco Vvco 0 1T
+
+* Multiplier Formula: Vout = Kd * (Vref * Vvco)
+* This implements the mixer theory from Section 2.4.1
+B1 Vout 0 V={kd * V(Vref) * V(Vvco)}
+
+.ends PD_BLOCK
+
+
+* LOOP FILTER - Robust Version
+.subckt LOOP_FILTER_BLOCK Vin Vout params: tau1=87u tau2=10.5u K=1
+* Pre-calculate coefficients to avoid braces in the model line
+.param n1={-1*tau2}
+.param d1={tau1}
+
+a1 %v(Vin) %v(Vout) loop_filter_model
+
+R1 Vin 0 1T
+R2 Vout 0 1T
+
+* Using the pre-calculated params inside the model
+.model loop_filter_model s_xfer(gain={K} num_coeff=[{n1} -1] den_coeff=[{d1} 0] int_ic=[0])
+.ends LOOP_FILTER_BLOCK
