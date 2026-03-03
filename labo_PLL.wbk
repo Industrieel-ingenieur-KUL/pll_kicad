@@ -30,12 +30,21 @@
       "showGrid": true,
       "traces": [
         {
-          "color": "rgb(228, 26, 28)",
-          "signal": "V(/VINT)",
-          "trace_type": 257
-        },
-        {
           "color": "rgb(55, 126, 184)",
+          "cursor1": {
+            "position": 0.0002093942054433714,
+            "x_format": "3~s",
+            "y_format": "3~V"
+          },
+          "cursor2": {
+            "position": 0.00024143985952589995,
+            "x_format": "3~s",
+            "y_format": "3~V"
+          },
+          "cursorD": {
+            "x_format": "3~s",
+            "y_format": "3~V"
+          },
           "signal": "V(/Vout)",
           "trace_type": 257
         }
